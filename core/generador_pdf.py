@@ -1,39 +1,22 @@
+
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.lib import colors
 
 
-# ===============================
+# =====================================================
 # PORTADA
-# ===============================
+# =====================================================
 
 def generar_portada(elementos, mes, anio):
 
-    estilo_empresa = ParagraphStyle(
-        name="empresa",
-        fontSize=12,
-        alignment=TA_LEFT
-    )
-
-    estilo_titulo = ParagraphStyle(
-        name="titulo",
-        fontSize=18,
-        alignment=TA_CENTER
-    )
-
-    estilo_ciudad = ParagraphStyle(
-        name="ciudad",
-        fontSize=16,
-        alignment=TA_CENTER
-    )
-
-    estilo_footer = ParagraphStyle(
-        name="footer",
-        fontSize=9,
-        alignment=TA_CENTER
-    )
+    estilo_empresa = ParagraphStyle("empresa", fontSize=12, alignment=TA_LEFT)
+    estilo_titulo = ParagraphStyle("titulo", fontSize=18, alignment=TA_CENTER)
+    estilo_ciudad = ParagraphStyle("ciudad", fontSize=16, alignment=TA_CENTER)
+    estilo_footer = ParagraphStyle("footer", fontSize=9, alignment=TA_CENTER)
 
     empresa = Paragraph(
         "Dirección de Personal y Recursos Humanos, S.C.P.",
@@ -45,16 +28,16 @@ def generar_portada(elementos, mes, anio):
 
     logo = Image("assets/logo_dprh.png", width=4*cm, height=2*cm)
     logo.hAlign = "RIGHT"
-
     elementos.append(logo)
+
     elementos.append(Spacer(1,40))
 
     titulo = Paragraph(
         "Estudio comparativo de sueldos y prestaciones",
         estilo_titulo
     )
-
     elementos.append(titulo)
+
     elementos.append(Spacer(1,40))
 
     imagen = Image(
@@ -62,18 +45,17 @@ def generar_portada(elementos, mes, anio):
         width=12*cm,
         height=10*cm
     )
-
     imagen.hAlign = "CENTER"
-
     elementos.append(imagen)
+
     elementos.append(Spacer(1,40))
 
     ciudad = Paragraph(
         f"Yucatán. {mes} {anio}",
         estilo_ciudad
     )
-
     elementos.append(ciudad)
+
     elementos.append(Spacer(1,80))
 
     footer_texto = """
@@ -84,27 +66,17 @@ Sitio web: www.dprh.com.mx
 """
 
     footer = Paragraph(footer_texto, estilo_footer)
-
     elementos.append(footer)
 
 
-# ===============================
+# =====================================================
 # TABLA DE CONTENIDO
-# ===============================
+# =====================================================
 
 def pagina_tabla_contenido(elementos):
 
-    titulo = ParagraphStyle(
-        name="titulo_indice",
-        fontSize=18,
-        alignment=TA_CENTER
-    )
-
-    texto = ParagraphStyle(
-        name="texto_indice",
-        fontSize=11,
-        alignment=TA_LEFT
-    )
+    titulo = ParagraphStyle("titulo_indice", fontSize=18, alignment=TA_CENTER)
+    texto = ParagraphStyle("texto_indice", fontSize=11, alignment=TA_LEFT)
 
     elementos.append(PageBreak())
 
@@ -112,151 +84,142 @@ def pagina_tabla_contenido(elementos):
     elementos.append(Spacer(1,30))
 
     contenido = [
-
-"I.- Nuestra Responsabilidad",
-"   - Alcance de nuestra responsabilidad.",
-
-"II.- Objetivo",
-"   - Objetivo de la realización del estudio.",
-
-"III.- Características de la Encuesta",
-"   - Número de puestos y empresas participantes.",
-"   - Clasificación por sector empresarial.",
-
-"IV.- Información General",
-"   - Indicadores Económicos.",
-"   - Vigencia de los datos recabados.",
-"   - Tamaño de la muestra encuestada.",
-"   - Clasificación de empresas por número de empleados.",
-"   - Índice de Rotación del personal.",
-
-"V.- Tabulador de Sueldos y Contrato Colectivo de Trabajo",
-"   - Último aumento a sueldos.",
-"   - Sueldos de contratación.",
-"   - Sindicatos en la empresas.",
-"   - Información general de los Contratos Colectivos de Trabajo.",
-
-"VI.- Prestaciones y Beneficios",
-"   - Días Adicionales a la Ley y Jornada Semanal.",
-"   - Días de Vacaciones, Prima Vacacional y Aguinaldo.",
-"   - Seguro de Vida.- Gastos Médico Mayores.",
-"   - Fondo de Ahorro.- Asignación de Automóvil.",
-"   - Bonos por cumplimiento de metas.- Reparto de Utilidades.",
-"   - Incentivos por Puntualidad y Asistencia.",
-"   - Comedor, Transporte y Vales de Despensa.",
-"   - Compensación o Bono de Antigüedad.",
-"   - Previsión Social.",
-"   - Prestaciones Adicionales.",
-
-"VII.- Salarios Mínimos",
-"   - Distribución de Puestos y número de Empleados de acuerdo al rango de Salarios Mínimos.",
-"   - Tabla de Puestos por Salarios Minimos.",
-
-"VIII.- Evaluación Comparativa de Sueldos",
-"   - Descripción genérica del puesto.",
-"   - Estadística descriptiva sobre cada puesto.",
-
-"IX.- Apéndice - Glosario y Conceptos Estadísticos",
-"   - Tablas de Información General.",
-"   - Tablas de Tabulador de Sueldos y Contrato Colectivo de Trabajo.",
-"   - Tablas de Prestaciones.",
-"   - Estadística descriptiva de Sueldos y detalle por Empresa.",
-"   - Estadística descriptiva de Sueldos clasificado de acuerdo a sus Niveles de ventas anuales.",
-"   - Desarrollo de la estructura de puestos."
-]
+        "I.- Nuestra Responsabilidad",
+        "   - Alcance de nuestra responsabilidad.",
+        "",
+        "II.- Objetivo",
+        "   - Objetivo de la realización del estudio.",
+        "",
+        "III.- Características de la Encuesta",
+        "   - Número de puestos y empresas participantes.",
+        "   - Clasificación por sector empresarial."
+    ]
 
     for linea in contenido:
-
         elementos.append(Paragraph(linea, texto))
-        elementos.append(Spacer(1,5))
+        elementos.append(Spacer(1,6))
 
 
-# ===============================
-# NUESTRA RESPONSABILIDAD
-# ===============================
+# =====================================================
+# OBJETIVO
+# =====================================================
 
-def pagina_responsabilidad(elementos):
+def pagina_objetivo(elementos):
 
     estilo_titulo = ParagraphStyle(
-        name="titulo_seccion",
-        fontSize=16,
-        alignment=TA_CENTER
-    )
-
-    estilo_subtitulo = ParagraphStyle(
-        name="subtitulo",
-        fontSize=13,
+        "titulo_objetivo",
+        fontSize=18,
         alignment=TA_CENTER
     )
 
     estilo_texto = ParagraphStyle(
-        name="texto",
-        fontSize=10,
-        alignment=TA_JUSTIFY,
-        leading=14
+        "texto_objetivo",
+        fontSize=12,
+        alignment=TA_CENTER,
+        leading=20
+    )
+
+    elementos.append(PageBreak())
+
+    elementos.append(Spacer(1,200))
+
+    elementos.append(Paragraph("OBJETIVO", estilo_titulo))
+
+    elementos.append(Spacer(1,40))
+
+    texto = """
+Proporcionar información completa y oportuna sobre la situación actual de sueldos y prestaciones en el estado de Yucatán a las empresas participantes, permitiendo tomar decisiones adecuadas y competitivas dentro del mercado laboral.
+"""
+
+    elementos.append(Paragraph(texto, estilo_texto))
+
+
+# =====================================================
+# CARACTERÍSTICAS DE LA ENCUESTA
+# =====================================================
+
+def pagina_caracteristicas_encuesta(elementos):
+
+    estilo_titulo = ParagraphStyle(
+        "titulo",
+        fontSize=16,
+        alignment=TA_CENTER
+    )
+
+    estilo_texto = ParagraphStyle(
+        "texto",
+        fontSize=11,
+        alignment=TA_JUSTIFY
     )
 
     elementos.append(PageBreak())
 
     elementos.append(Paragraph(
-        "I.- Nuestra Responsabilidad",
+        "CARACTERÍSTICAS DE LA ENCUESTA",
         estilo_titulo
     ))
 
     elementos.append(Spacer(1,20))
 
-    elementos.append(Paragraph(
-        "Alcance de nuestra responsabilidad",
-        estilo_subtitulo
-    ))
+    texto = f"""
+    En el presente estudio participaron {datos["empresas"]} empresas ubicadas en el estado de Yucatán.
+
+    El número de puestos reportados simultáneamente por al menos dos empresas fue de {datos["puestos"]};
+    con un total de {datos["empleados"]} empleados asociados a esos puestos.
+    """
+    elementos.append(Paragraph(texto, estilo_texto))
 
     elementos.append(Spacer(1,30))
 
-    texto_responsabilidad = [
+    empresas = [
+        ["AEI","Baldesigns de México"],
+        ["Bohn de México","Dimadera"],
+        ["Dunosusa","Elemetic"],
+        ["Empaques Nova","Grupo Crio"],
+        ["Industria Salinera de Yucatán","Kekén"],
+        ["La Anita","La Lupita"],
+        ["Marbol","Millet Industria de Vidrio"],
+        ["Milsco de México","Momente Brands"],
+        ["Provi","Stuller México"],
+        ["The Palace Company","Uchiyama Manufacturing"]
+    ]
 
-"""El presente Estudio de Sueldos y Prestaciones, realizado por Dirección de Personal y Recursos Humanos SCP (DPRH) y los resultados de los mismos, incluyendo aquellos informes relacionados se realizan y están disponibles para la Empresa Solicitante de conformidad con los siguientes términos y condiciones:""",
+    tabla = Table(empresas, colWidths=[8*cm,8*cm])
 
-"<b>Términos y Condiciones.</b>",
+    tabla.setStyle(TableStyle([
+        ("FONTNAME",(0,0),(-1,-1),"Helvetica"),
+        ("FONTSIZE",(0,0),(-1,-1),10),
+        ("BOTTOMPADDING",(0,0),(-1,-1),6)
+    ]))
 
-"""Calidad de Servicio. DPRH requerirá de la(s) persona(a) física o moral solicitante(s), los datos que crea necesarios para llevar a cabo dicho Estudio. DPRH proporcionará los formatos de captura de la manera que considere conveniente para permitir su proceso. El Solicitante tendrá la responsabilidad de verificar que cada entrega de datos sea veraz, precisa y completa, un asociado de DPRH revisará cada entrega de datos para verificar su razonabilidad y podrá cuestionar aquellos que considere necesarios. Cuando el Estudio involucre a un grupo de Empresas participantes, DPRH se reserva la fecha de entrega de los resultados y dependerá del cumplimiento de los plazos de entrega de datos por parte de los participantes.""",
+    elementos.append(tabla)
 
-"""Derechos de Propiedad Intelectual. DPRH retendrá la titularidad y el derecho de propiedad intelectual sobre estos Estudios. El uso no-autorizado o la duplicación de los mismos, sin el previo consentimiento de DPRH, quedan expresamente prohibidos.""",
+    elementos.append(Spacer(1,30))
 
-"""El uso de la información incluida en los Estudios no sustituye la obtención de asesoramiento legal, consultoría o cualquier otro tipo de asesoramiento necesario para determinar si las prácticas y los niveles de compensación son razonables o adecuados.""",
-
-"""Uso del Estudio. Usted tendrá el derecho de utilizar el resultado del Estudio únicamente dentro de su empresa para propósitos de planificación interna de compensación y no podrán ser modificados, reproducidos, vendidos o transferidos en su totalidad o parcialmente. Si Usted quisiese compartir las encuestas (en todo o en parte) con un tercero deberá obtener el previo consentimiento de DPRH.""",
-
-"""Limitación de Responsabilidad. La responsabilidad conjunta de DPRH y sus empleados, directores, ejecutivos y agentes ante el Solicitante por cualquier pérdida relacionada con la prestación de nuestros servicios no excederá el precio facturado por la realización del Estudio o el monto total de los honorarios pagados a DPRH durante un periodo de doce meses contados a partir del inicio del servicio.""",
-
-"""General. La validez e interpretación de estos términos se regirán por las leyes del Estado de Yucatán, México. Las partes se someten a la jurisdicción exclusiva de las cortes del Estado de Yucatán para resolver cualquier controversia relacionada con estos estudios.""",
-
-"<b>Confidencialidad</b>",
-
-"""Confidencialidad y Uso de los Datos. Los datos de los participantes suministrados a las encuestas serán confidenciales. DPRH toma las precauciones y medidas de seguridad razonables para prevenir el acceso no autorizado por terceros.""",
-
-"""Esta información es exclusivamente para el uso interno de los clientes de DPRH y con el único propósito de participar en las encuestas de DPRH. Ninguna persona podrá utilizar o reproducir esta información para ningún otro propósito."""
-]
-
-    for parrafo in texto_responsabilidad:
-
-        elementos.append(Paragraph(parrafo, estilo_texto))
-        elementos.append(Spacer(1,12))
+    try:
+        grafica = Image("assets/grafica_sectores.png", width=16*cm, height=9*cm)
+        grafica.hAlign = "CENTER"
+        elementos.append(grafica)
+    except:
+        pass
 
 
-# ===============================
-# GENERADOR FINAL
-# ===============================
+# =====================================================
+# GENERADOR PRINCIPAL
+# =====================================================
 
-def generar_pdf(ruta_pdf, mes, anio):
+def generar_pdf(nombre_archivo, mes, anio, datos):
 
-    pdf = SimpleDocTemplate(ruta_pdf, pagesize=letter)
+    pdf = SimpleDocTemplate(
+        nombre_archivo,
+        pagesize=letter
+    )
 
     elementos = []
 
     generar_portada(elementos, mes, anio)
-
     pagina_tabla_contenido(elementos)
-
-    pagina_responsabilidad(elementos)
+    pagina_objetivo(elementos)
+    pagina_caracteristicas_encuesta(elementos)
 
     pdf.build(elementos)
