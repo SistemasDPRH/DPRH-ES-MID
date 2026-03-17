@@ -1,6 +1,6 @@
 import os
-from core.lector_dprh import leer_dprh
-from core.lector_excel import leer_excel
+from estructura.lector_dprh import leer_dprh
+from estructura.lector_excel import leer_excel
 
 
 def cargar_empresas(carpeta):

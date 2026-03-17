@@ -1,4 +1,4 @@
-from core.lector_empresas import cargar_empresas
+from estructura.lector_empresas import cargar_empresas
 
 
 empresas = cargar_empresas("merida2026")
