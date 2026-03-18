@@ -6,6 +6,8 @@ from reportlab.lib.units import cm
 
 from core.procesador_estadisticas import porcentaje, promedio
 
+from reportlab.platypus import Image
+from core.graficas.grafica_tabulador import grafica_contrato_colectivo
 
 def tabla_estilo(tabla):
     tabla.setStyle(TableStyle([
@@ -138,4 +140,4 @@ def pagina_tabulador(elementos, empresas):
         ("ALIGN",(0,0),(-1,-1),"CENTER"),
     ]))
 
-    elementos.append(tabla7) 
+    elementos.append(tabla7)

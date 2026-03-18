@@ -1,13 +1,12 @@
-from lector_dprh import leer_archivos_dprh
-from generador_pdf import generar_pdf
+from core.pdf.generador_pdf import generar_pdf
 
-carpeta_datos = "datos_empresas"
 
-datos = leer_archivos_dprh(carpeta_datos)
+if __name__ == "__main__":
 
-generar_pdf(
-    "estudio_sueldos_2026.pdf",
-    "Abril",
-    "2026",
-    datos
-)
+    generar_pdf(
+        ruta_pdf="estudios_generados/estudio_final.pdf",
+        carpeta_dprh="estudios/",          # carpeta con .dprh
+        ruta_excel="tabulador.xlsx",       # tu Excel
+        mes="Abril",
+        anio="2025"
+    )
