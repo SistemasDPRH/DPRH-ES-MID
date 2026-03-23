@@ -52,33 +52,27 @@ def crear_tabla(data):
         repeatRows=2
     )
 
-    tabla.setStyle(TableStyle([
+    estilo = [
 
-        # SPAN
-        ("SPAN", (3,0), (5,0)),
-        ("SPAN", (6,0), (10,0)),
-        ("SPAN", (0,0), (0,1)),
-        ("SPAN", (1,0), (1,1)),
-        ("SPAN", (2,0), (2,1)),
-
-        # HEADER COLOR
+        # HEADER
         ("BACKGROUND", (0,0), (-1,1), colors.HexColor("#2f6f4f")),
         ("TEXTCOLOR", (0,0), (-1,1), colors.white),
-
-        # ALINEACIÓN
-        ("ALIGN", (0,0), (-1,-1), "CENTER"),
-        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-
-        # FUENTE
-        ("FONTSIZE", (0,0), (-1,-1), 7),
+        ("FONTNAME", (0,0), (-1,1), "Helvetica-Bold"),
 
         # GRID
         ("GRID", (0,0), (-1,-1), 0.25, colors.black),
 
-        # PADDING
-        ("BOTTOMPADDING", (0,0), (-1,-1), 4),
-        ("TOPPADDING", (0,0), (-1,-1), 4),
-    ]))
+        # ALIGN
+        ("ALIGN", (0,0), (-1,-1), "CENTER"),
+
+    ]
+
+    # 🔥 ZEBRA STYLE
+    for i in range(2, len(data)):
+        if i % 2 == 0:
+            estilo.append(("BACKGROUND", (0,i), (-1,i), colors.whitesmoke))
+
+    tabla.setStyle(TableStyle(estilo))
 
     return tabla
 

@@ -6,26 +6,25 @@ from core.secciones.indice import pagina_tabla_contenido
 from core.secciones.objetivo import pagina_objetivo
 from core.secciones.caracteristicas import pagina_caracteristicas_encuesta
 from core.secciones.indicadores import pagina_indicadores
-from core.secciones.informacion_general import pagina_informacion_general
+from core.secciones.info_general import pagina_informacion_general
 from core.secciones.tabulador_sueldos import pagina_tabulador_sueldos
+from core.generador_graficas import grafica_sectores, grafica_sindical
 
 # LECTORES
 from core.lector_dprh import leer_carpeta_dprh
-from core.lector_excel import leer_tabulador_excel
-
+from core.lector_excel import leer_tabuladores_carpeta
 
 def generar_pdf(
     ruta_pdf,
     carpeta_dprh,
-    ruta_excel,
     mes,
     anio
-):
+): 
 
     pdf = SimpleDocTemplate(
         ruta_pdf,
-        rightMargin=40,
-        leftMargin=40,
+        rightMargin=35,
+        leftMargin=35,
         topMargin=40,
         bottomMargin=30
     )
@@ -35,7 +34,11 @@ def generar_pdf(
     # 1. LEER DATOS
     # =========================
     datos_dprh = leer_carpeta_dprh(carpeta_dprh)
-    datos_excel = leer_tabulador_excel(ruta_excel)
+    datos_excel = leer_tabuladores_carpeta(carpeta_dprh)
+    datos_excel = datos_excel.fillna("")
+    datos_excel = datos_excel.values.tolist()
+    grafica_sectores(datos_dprh["sectores"])
+    grafica_sindical(datos_dprh["empresas_data"])
 
     # =========================
     # 2. PORTADA

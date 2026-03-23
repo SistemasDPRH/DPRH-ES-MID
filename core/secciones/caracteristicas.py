@@ -4,6 +4,7 @@ from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from reportlab.lib.units import cm
 from reportlab.lib import colors
 
+Image("assets/grafica_sectores.png")
 
 def pagina_caracteristicas_encuesta(elementos, datos):
 

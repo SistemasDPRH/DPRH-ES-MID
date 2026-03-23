@@ -1,28 +1,34 @@
+import os
 import pandas as pd
 
 
-def leer_tabulador_excel(ruta_excel):
+def leer_tabuladores_carpeta(carpeta_principal):
 
-    df = pd.read_excel(ruta_excel, sheet_name=0)
+    dataframes = []
 
-    datos = []
+    for empresa in os.listdir(carpeta_principal):
 
-    for _, row in df.iterrows():
+        ruta_empresa = os.path.join(carpeta_principal, empresa)
 
-        fila = [
-            str(row.get("Clave", "")),
-            str(row.get("Área", "")),
-            str(row.get("Puesto Homologado", "")),
-            str(row.get("Sueldo Base de Contratación", "")),
-            str(row.get("Sueldo Neto", "")),
-            str(row.get("Sueldo Base Integrado", "")),
-            str(row.get("Número de Empleados en el Puesto", "")),
-            str(row.get("Escolaridad", "")),
-            str(row.get("Experiencia", "")),
-            str(row.get("Segundo Idioma", "")),
-            str(row.get("Tipo de Puesto", "")),
-        ]
+        if os.path.isdir(ruta_empresa):
 
-        datos.append(fila)
+            for archivo in os.listdir(ruta_empresa):
 
-    return datos
+                if archivo.endswith((".xlsx", ".xlsm")):
+
+                    ruta_excel = os.path.join(ruta_empresa, archivo)
+
+                    try:
+                        df = pd.read_excel(ruta_excel, sheet_name=0)
+
+                        df["Empresa"] = empresa
+
+                        dataframes.append(df)
+
+                    except Exception as e:
+                        print(f"Error leyendo {ruta_excel}: {e}")
+
+    if dataframes:
+        return pd.concat(dataframes, ignore_index=True)
+
+    return pd.DataFrame()

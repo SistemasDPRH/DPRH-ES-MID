@@ -2,15 +2,12 @@ import os
 
 
 def convertir_valor(valor):
-    """
-    Convierte valores del .dprh a tipos útiles
-    """
+
     if valor == "True":
         return True
     if valor == "False":
         return False
 
-    # intentar número
     try:
         return float(valor.replace(",", ""))
     except:
@@ -24,6 +21,7 @@ def parsear_dprh(ruta_archivo):
     with open(ruta_archivo, "r", encoding="utf-8") as f:
 
         for linea in f:
+
             linea = linea.strip()
 
             if "|" in linea:
@@ -35,7 +33,9 @@ def parsear_dprh(ruta_archivo):
 
 def leer_carpeta_dprh(carpeta):
 
-    empresas = []
+    empresas_data = []
+    sectores = {}
+    total_empleados = 0
 
     for archivo in os.listdir(carpeta):
 
@@ -44,6 +44,23 @@ def leer_carpeta_dprh(carpeta):
             ruta = os.path.join(carpeta, archivo)
             data = parsear_dprh(ruta)
 
-            empresas.append(data)  # 🔥 AQUÍ ESTÁ EL CAMBIO CLAVE
+            empresas_data.append(data)
 
-    return empresas
+            # Sector
+            sector = data.get("SectorEmpresarial", "Desconocido")
+            sectores[sector] = sectores.get(sector, 0) + 1
+
+            # Empleados
+            try:
+                no_sind = int(data.get("NumeroEmpleadosNoSind", 0) or 0)
+                sind = int(data.get("NumeroEmpleadosSind", 0) or 0)
+                total_empleados += no_sind + sind
+            except:
+                pass
+
+    return {
+        "empresas_data": empresas_data,
+        "numero_empresas": len(empresas_data),
+        "sectores": sectores,
+        "total_empleados": total_empleados
+    }
