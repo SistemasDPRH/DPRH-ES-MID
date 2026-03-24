@@ -3,6 +3,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from reportlab.lib.units import cm
 from reportlab.lib import colors
+from reportlab.lib.enums import TA_LEFT
 
 Image("assets/grafica_sectores.png")
 

@@ -3,6 +3,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.units import cm
+from core.utils_format import formato_moneda
 
 from core.procesador_estadisticas import porcentaje, promedio
 
@@ -19,125 +20,55 @@ def tabla_estilo(tabla):
     return tabla
 
 
-def pagina_tabulador(elementos, empresas):
-
-    estilo_header = ParagraphStyle(
-        "header", fontSize=12, alignment=TA_CENTER, textColor=colors.white
-    )
+def pagina_tabulador(elementos, datos):
 
     elementos.append(PageBreak())
 
-    # =========================
-    # HEADER
-    # =========================
-    header = Table(
-        [[Paragraph("V. TABULADOR DE SUELDOS Y CONTRATO COLECTIVO", estilo_header)]],
-        colWidths=[17*cm]
-    )
+    estilo = ParagraphStyle(name="titulo", alignment=TA_CENTER, fontSize=14)
 
-    header.setStyle(TableStyle([
-        ("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#2E6E4E")),
-        ("ALIGN",(0,0),(-1,-1),"CENTER"),
-        ("TOPPADDING",(0,0),(-1,-1),8),
-        ("BOTTOMPADDING",(0,0),(-1,-1),8),
-    ]))
+    elementos.append(Paragraph("Estudio Comparativo de Sueldos", estilo))
+    elementos.append(Spacer(1, 20))
 
-    elementos.append(header)
-    elementos.append(Spacer(1,15))
+    for item in datos:
 
-    # =========================
-    # 1. CONTRATO COLECTIVO
-    # =========================
-    tabla1 = Table([
-        ["Contrato Colectivo", "%"],
-        ["Sí", f"{porcentaje(empresas, 'ContratoColectivoSi')}%"],
-        ["No", f"{porcentaje(empresas, 'ContratoColectivoNo')}%"],
-    ], colWidths=[10*cm, 7*cm])
+        # ENCABEZADO VERDE
+        encabezado = [
+            ["Puesto:", item["puesto"]]
+        ]
 
-    elementos.append(tabla_estilo(tabla1))
-    elementos.append(Spacer(1,20))
+        t_enc = Table(encabezado, colWidths=[4*cm, 12*cm])
+        t_enc.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.darkgreen),
+            ("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+            ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+        ]))
 
-    # =========================
-    # 2. TIPO DE SINDICATO
-    # =========================
-    tabla2 = Table([
-        ["Tipo de Sindicato", "%"],
-        ["CROC", f"{porcentaje(empresas, 'ContratoColectivoCROC')}%"],
-        ["CTM", f"{porcentaje(empresas, 'ContratoColectivoCTM')}%"],
-        ["CROM", f"{porcentaje(empresas, 'ContratoColectivoCROM')}%"],
-        ["Otro", f"{porcentaje(empresas, 'ContratoColectivoOtro')}%"],
-    ], colWidths=[10*cm, 7*cm])
+        elementos.append(t_enc)
+        elementos.append(Spacer(1, 10))
 
-    elementos.append(tabla_estilo(tabla2))
-    elementos.append(Spacer(1,20))
+        # TABLA PRINCIPAL
+        tabla_data = [
+            ["", "Mínimo", "Inferior", "Mediana", "Superior", "Máximo", "Media", "Desv. Std"],
+            [
+                "Sueldo",
+                formato_moneda(item["min"]),
+                formato_moneda(item["q1"]),
+                formato_moneda(item["mediana"]),
+                formato_moneda(item["q3"]),
+                formato_moneda(item["max"]),
+                formato_moneda(item["media"]),
+                formato_moneda(item["std"])
+            ]
+        ]
 
-    # =========================
-    # 3. FRECUENCIA TABULADOR
-    # =========================
-    tabla3 = Table([
-        ["Frecuencia revisión tabulador", "%"],
-        ["Cada 3 meses", f"{porcentaje(empresas, 'FrecuenciaRevTabulador3')}%"],
-        ["Cada 6 meses", f"{porcentaje(empresas, 'FrecuenciaRevTabulador6')}%"],
-        ["Cada 9 meses", f"{porcentaje(empresas, 'FrecuenciaRevTabulador9')}%"],
-        ["Cada 12 meses", f"{porcentaje(empresas, 'FrecuenciaRevTabulador12')}%"],
-        ["Otro", f"{porcentaje(empresas, 'FrecuenciaRevTabuladorOtro')}%"],
-    ], colWidths=[10*cm, 7*cm])
+        tabla = Table(tabla_data)
 
-    elementos.append(tabla_estilo(tabla3))
-    elementos.append(Spacer(1,20))
+        tabla.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.green),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+        ]))
 
-    # =========================
-    # 4. INCREMENTOS NO SINDICALIZADOS
-    # =========================
-    tabla4 = Table([
-        ["Incrementos No Sindicalizados", "% Promedio"],
-        ["Último incremento", f"{promedio(empresas, 'UltimoIncrementoTabuladorPctNoSind')}%"],
-        ["Próximo incremento", f"{promedio(empresas, 'ProximoIncrementoTabuladorPctNoSind')}%"],
-    ], colWidths=[10*cm, 7*cm])
-
-    elementos.append(tabla_estilo(tabla4))
-    elementos.append(Spacer(1,20))
-
-    # =========================
-    # 5. ESTRUCTURA TABULADOR
-    # =========================
-    tabla5 = Table([
-        ["Estructura formal de tabulador", "%"],
-        ["Sí", f"{porcentaje(empresas, 'EstructuraFormalTabuladorSi')}%"],
-        ["No", f"{porcentaje(empresas, 'EstructuraFormalTabuladorNo')}%"],
-    ], colWidths=[10*cm, 7*cm])
-
-    elementos.append(tabla_estilo(tabla5))
-    elementos.append(Spacer(1,20))
-
-    # =========================
-    # 6. SINDICALIZADOS
-    # =========================
-    tabla6 = Table([
-        ["Datos Sindicalizados", "% Promedio"],
-        ["Incremento sueldos", f"{promedio(empresas, 'UltimoIncrementoSueldosPctSind')}%"],
-        ["Incremento prestaciones", f"{promedio(empresas, 'UltimoIncrementoPrestacionesPctSind')}%"],
-    ], colWidths=[10*cm, 7*cm])
-
-    elementos.append(tabla_estilo(tabla6))
-    elementos.append(Spacer(1,20))
-
-    # =========================
-    # 7. REVISIÓN CONTRATO
-    # =========================
-    # (aquí no promedio porque es fecha)
-    fechas = [e.get("UltimaRevisionCtoColectivoFechaSind") for e in empresas if e.get("UltimaRevisionCtoColectivoFechaSind")]
-
-    fecha_texto = fechas[0] if fechas else "No disponible"
-
-    tabla7 = Table([
-        ["Última revisión contrato colectivo"],
-        [fecha_texto]
-    ], colWidths=[17*cm])
-
-    tabla7.setStyle(TableStyle([
-        ("GRID",(0,0),(-1,-1),1,colors.black),
-        ("ALIGN",(0,0),(-1,-1),"CENTER"),
-    ]))
-
-    elementos.append(tabla7)
+        elementos.append(tabla)
+        elementos.append(Spacer(1, 25))

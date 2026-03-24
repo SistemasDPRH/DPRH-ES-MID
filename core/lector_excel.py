@@ -1,34 +1,68 @@
-import os
 import pandas as pd
 
 
-def leer_tabuladores_carpeta(carpeta_principal):
+def limpiar_numero(valor):
+    try:
+        return float(str(valor).replace(",", "").strip())
+    except:
+        return 0.0
 
-    dataframes = []
 
-    for empresa in os.listdir(carpeta_principal):
+def leer_tabulador_excel(ruta_excel):
 
-        ruta_empresa = os.path.join(carpeta_principal, empresa)
+    try:
+        df = pd.read_excel(ruta_excel, sheet_name=0)
+    except Exception as e:
+        print(f"⚠️ Error leyendo Excel: {ruta_excel}")
+        return []
 
-        if os.path.isdir(ruta_empresa):
+    # Normalizar nombres de columnas
+    df.columns = [str(col).strip() for col in df.columns]
 
-            for archivo in os.listdir(ruta_empresa):
+    datos = []
 
-                if archivo.endswith((".xlsx", ".xlsm")):
+    for _, row in df.iterrows():
 
-                    ruta_excel = os.path.join(ruta_empresa, archivo)
+        try:
+            registro = {
+                "clave": str(row.get("Clave", "")).strip(),
+                "area": str(row.get("Área", "")).strip(),
+                "puesto": str(row.get("Puesto Homologado", "")).strip(),
 
-                    try:
-                        df = pd.read_excel(ruta_excel, sheet_name=0)
+                "sueldo_base": limpiar_numero(row.get("Sueldo Base de Contratación", 0)),
+                "sueldo_neto": limpiar_numero(row.get("Sueldo Neto", 0)),
+                "sueldo_integrado": limpiar_numero(row.get("Sueldo Base Integrado", 0)),
 
-                        df["Empresa"] = empresa
+                "empleados": limpiar_numero(row.get("Número de Empleados en el Puesto", 0)),
 
-                        dataframes.append(df)
+                "escolaridad": str(row.get("Escolaridad", "")).strip(),
+                "experiencia": str(row.get("Experiencia", "")).strip(),
+                "idioma": str(row.get("Segundo Idioma", "")).strip(),
+                "tipo_puesto": str(row.get("Tipo de Puesto", "")).strip(),
+            }
 
-                    except Exception as e:
-                        print(f"Error leyendo {ruta_excel}: {e}")
+            # evitar filas vacías
+            if registro["puesto"]:
+                datos.append(registro)
 
-    if dataframes:
-        return pd.concat(dataframes, ignore_index=True)
+        except Exception as e:
+            continue
 
-    return pd.DataFrame()
+    return datos
+
+def leer_todos_los_tabuladores(empresas_data):
+
+    todos_los_datos = []
+
+    for empresa in empresas_data:
+
+        ruta_excel = empresa["excel_path"]
+        nombre_empresa = empresa["nombre"]
+
+        datos_excel = leer_tabulador_excel(ruta_excel)
+
+        for fila in datos_excel:
+            fila["empresa"] = nombre_empresa
+            todos_los_datos.append(fila)
+
+    return todos_los_datos

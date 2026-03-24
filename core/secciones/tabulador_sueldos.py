@@ -1,132 +1,133 @@
-from reportlab.platypus import PageBreak, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
-from reportlab.lib import colors
 from reportlab.lib.units import cm
 
 
-# =========================
-# FORMATO DINERO
-# =========================
 def formato_moneda(valor):
     try:
-        numero = float(str(valor).replace(",", ""))
-        return "${:,.2f}".format(numero)
+        return "${:,.2f}".format(valor)
     except:
-        return valor
+        return "$0.00"
 
 
-# =========================
-# PREPARAR DATOS
-# =========================
-def preparar_datos(datos_tabla):
+def construir_fila(nombre, stats):
 
-    datos_formateados = []
+    if not stats:
+        return [nombre] + ["-"] * 8
 
-    for fila in datos_tabla:
-
-        nueva = fila.copy()
-
-        # Columnas de dinero
-        nueva[3] = formato_moneda(nueva[3])
-        nueva[4] = formato_moneda(nueva[4])
-        nueva[5] = formato_moneda(nueva[5])
-
-        datos_formateados.append(nueva)
-
-    return datos_formateados
-
-
-# =========================
-# CREAR TABLA
-# =========================
-def crear_tabla(data):
-
-    tabla = Table(
-        data,
-        colWidths=[
-            1.5*cm, 3*cm, 6*cm,
-            2.5*cm, 2.5*cm, 2.5*cm,
-            1.8*cm, 2.5*cm, 2.5*cm, 2.5*cm, 2.5*cm
-        ],
-        repeatRows=2
-    )
-
-    estilo = [
-
-        # HEADER
-        ("BACKGROUND", (0,0), (-1,1), colors.HexColor("#2f6f4f")),
-        ("TEXTCOLOR", (0,0), (-1,1), colors.white),
-        ("FONTNAME", (0,0), (-1,1), "Helvetica-Bold"),
-
-        # GRID
-        ("GRID", (0,0), (-1,-1), 0.25, colors.black),
-
-        # ALIGN
-        ("ALIGN", (0,0), (-1,-1), "CENTER"),
-
+    return [
+        nombre,
+        formato_moneda(stats["min"]),
+        formato_moneda(stats["q1"]),
+        formato_moneda(stats["mediana"]),
+        formato_moneda(stats["q3"]),
+        formato_moneda(stats["max"]),
+        formato_moneda(stats["media"]),
+        formato_moneda(stats["media_ponderada"]),
+        formato_moneda(stats["std"]),
     ]
 
-    # 🔥 ZEBRA STYLE
-    for i in range(2, len(data)):
-        if i % 2 == 0:
-            estilo.append(("BACKGROUND", (0,i), (-1,i), colors.whitesmoke))
 
-    tabla.setStyle(TableStyle(estilo))
-
-    return tabla
-
-
-# =========================
-# PAGINA TABULADOR
-# =========================
-def pagina_tabulador_sueldos(elementos, datos_tabla):
+def pagina_tabulador_sueldos(elementos, tabulador):
 
     estilo_titulo = ParagraphStyle(
-        "titulo",
-        fontSize=14,
-        alignment=TA_CENTER
+        name="titulo",
+        alignment=TA_CENTER,
+        fontSize=14
     )
 
-    datos_tabla = preparar_datos(datos_tabla)
+    elementos.append(PageBreak())
+    elementos.append(Paragraph("VIII.- Evaluación Comparativa de Sueldos", estilo_titulo))
+    elementos.append(Spacer(1, 20))
 
-    # HEADERS
-    header1 = [
-        "Clave", "Área", "Puesto Homologado",
-        "Sueldos Mensuales", "", "",
-        "Perfil del Puesto", "", "", "", ""
-    ]
+    for item in tabulador:
 
-    header2 = [
-        "", "", "",
-        "Base Contratación", "Sueldo Neto", "Sueldo Integrado",
-        "No. Emp.", "Escolaridad", "Experiencia", "Idioma", "Tipo"
-    ]
+        # =========================
+        # ENCABEZADO VERDE
+        # =========================
+        encabezado = Table(
+            [[f"Puesto: {item['puesto']}"]],
+            colWidths=[17*cm]
+        )
 
-    # =========================
-    # DIVIDIR EN BLOQUES
-    # =========================
-    filas_por_pagina = 25
+        encabezado.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.darkgreen),
+            ("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+            ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 11),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ]))
 
-    bloques = [
-        datos_tabla[i:i + filas_por_pagina]
-        for i in range(0, len(datos_tabla), filas_por_pagina)
-    ]
+        elementos.append(encabezado)
+        elementos.append(Spacer(1, 6))
 
-    for i, bloque in enumerate(bloques):
+        # =========================
+        # TABLA PRINCIPAL
+        # =========================
+        tabla_data = [
+            [
+                "Tipo",
+                "Mínimo",
+                "Inferior",
+                "Mediana",
+                "Superior",
+                "Máximo",
+                "Media",
+                "Media Pond.",
+                "Desv. Std"
+            ],
+            construir_fila("Base", item["base"]),
+            construir_fila("Neto", item["neto"]),
+            construir_fila("Integrado", item["integrado"]),
+        ]
 
-        elementos.append(PageBreak())
+        tabla = Table(tabla_data, repeatRows=1)
 
-        # SOLO primer página muestra título
-        if i == 0:
-            elementos.append(Paragraph(
-                "TABULADOR DE SUELDOS",
-                estilo_titulo
-            ))
-            elementos.append(Spacer(1, 15))
+        tabla.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.green),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
 
-        data = [header1, header2] + bloque
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
 
-        tabla = crear_tabla(data)
+            ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+            ("ALIGN", (0, 0), (0, -1), "LEFT"),
+        ]))
 
         elementos.append(tabla)
+        elementos.append(Spacer(1, 10))
+
+        # =========================
+        # TABLA PERFIL (simplificada)
+        # =========================
+        detalle = item["detalle"]
+
+        if detalle:
+
+            perfil_data = [
+                ["Empresa", "Escolaridad", "Experiencia", "Idioma", "Tipo"]
+            ]
+
+            for d in detalle[:5]:  # limitar para que no rompa diseño
+                perfil_data.append([
+                    d.get("empresa", ""),
+                    d.get("escolaridad", ""),
+                    d.get("experiencia", ""),
+                    d.get("idioma", ""),
+                    d.get("tipo_puesto", ""),
+                ])
+
+            tabla_perfil = Table(perfil_data)
+
+            tabla_perfil.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.25, colors.black),
+                ("FONTSIZE", (0, 0), (-1, -1), 7),
+            ]))
+
+            elementos.append(tabla_perfil)
+
+        elementos.append(Spacer(1, 25))
